@@ -3,7 +3,9 @@ isEmpty(QTAVPLAYER) {
 }
 message('QTAVPLAYER: ' $$QTAVPLAYER)
 
-FFMPEG = $$(FFMPEG)
+isEmpty(FFMPEG) {
+    FFMPEG = $$(FFMPEG)
+}
 message('FFMPEG: ' $$FFMPEG)
 !isEmpty(FFMPEG) {
 

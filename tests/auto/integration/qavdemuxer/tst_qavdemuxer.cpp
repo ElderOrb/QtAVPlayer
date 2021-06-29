@@ -79,8 +79,7 @@ void tst_QAVDemuxer::loadAudio()
 {
     QAVDemuxer d;
 
-    auto dirName = QFileInfo(__FILE__).absoluteDir().path();
-    QFileInfo file(dirName + "/../testdata/test.wav");
+    QFileInfo file(QLatin1String("../testdata/test.wav"));
 
     QVERIFY(d.load(QUrl::fromLocalFile(file.absoluteFilePath())) >= 0);
     QVERIFY(d.videoStream() < 0);
@@ -160,8 +159,7 @@ void tst_QAVDemuxer::loadVideo()
 {
     QAVDemuxer d;
 
-    auto dirName = QFileInfo(__FILE__).absoluteDir().path();
-    QFileInfo file(dirName + "/../testdata/colors.mp4");
+    QFileInfo file(QLatin1String("../testdata/colors.mp4"));
 
     QVERIFY(d.load(QUrl::fromLocalFile(file.absoluteFilePath())) >= 0);
     QVERIFY(d.videoStream() >= 0);

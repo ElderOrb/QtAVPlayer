@@ -89,11 +89,14 @@ To render video QAbstractVideoSurface can be used:
 
 # Build
 
-cmake:
-
-    cd build; /opt/cmake-3.19.2/bin/cmake .. -DCMAKE_PREFIX_PATH=/opt/dev/qtbase/lib/cmake/Qt5 -DCMAKE_INSTALL_PREFIX=/opt/QtAVPlayer/install -DCMAKE_LIBRARY_PATH="/opt/dev/qtbase/lib;/opt/ffmpeg/install/lib" -DCMAKE_INCLUDE_PATH=/opt/ffmpeg/install/include
 
 Linux:
+
+cmake:
+
+    cd build; /opt/cmake-3.19.2/bin/cmake .. -DCMAKE_PREFIX_PATH=/opt/dev/qtbase/lib/cmake/Qt5 -DCMAKE_INSTALL_PREFIX=/opt/QtAVPlayer/install -DCMAKE_LIBRARY_PATH="/opt/dev/qtbase/lib;/opt/ffmpeg/install/lib" -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=/opt/ffmpeg/install/include
+
+qmake:
 
 Install ffmpeg visible with pkg-config.
 
@@ -141,6 +144,16 @@ Set vars that point to libraries in armeabi-v7a, arm64-v8a, x86 and x86_64 targe
     $ cd QtAVPlayer && qmake && make -j8
 
 Windows and MSVC:
+
+cmake:
+
+    cd build
+    cmake .. -DCMAKE_PREFIX_PATH=c:\dev\qtbase\lib\cmake\Qt5 -DCMAKE_LIBRARY_PATH="c:\dev\qtbase\lib;c:\ffmpeg\lib" -DCMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES=c:\ffmpeg\include -DCMAKE_INSTALL_PREFIX=c:\QtAVPlayer\install
+    msbuild QtAVPlayer.sln
+    cmake --build . --target install
+
+
+qmake:
 
     SET FFMPEG=C:\ffmpeg
     SET PATH=%FFMPEG%\lib;%PATH%

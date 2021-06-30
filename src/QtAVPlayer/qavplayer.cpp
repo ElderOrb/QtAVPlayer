@@ -203,8 +203,13 @@ void QAVPlayerPrivate::doWait()
 
 void QAVPlayerPrivate::setWait(bool v)
 {
-    QMutexLocker locker(&waitMutex);
-    wait = v;
+    {
+        QMutexLocker locker(&waitMutex);
+        wait = v;
+    }
+
+    if (!v)
+        waitCond.wakeAll();
 }
 
 void QAVPlayerPrivate::doLoad(const QUrl &url)
@@ -349,6 +354,9 @@ QAVPlayer::QAVPlayer(QObject *parent)
     : QObject(parent)
     , d_ptr(new QAVPlayerPrivate(this))
 {
+    const int maxThreadCount = QThreadPool::globalInstance()->maxThreadCount();
+    if (maxThreadCount < 4)
+        qWarning() << "Max thread count is to low:" << maxThreadCount;
 }
 
 QAVPlayer::~QAVPlayer()
@@ -439,12 +447,7 @@ void QAVPlayer::play()
         return;
     }
 
-    QMutexLocker locker(&d->waitMutex);
-    if (!d->wait)
-        return;
-
-    d->wait = false;
-    d->waitCond.wakeAll();
+    d->setWait(false);
     d->pendingPlay = false;
 }
 
@@ -483,7 +486,6 @@ void QAVPlayer::seek(qint64 pos)
     QMutexLocker lock(&d->positionMutex);
     d->pendingPosition = pos / 1000.0;
     d->setWait(false);
-    d->waitCond.wakeAll();
 }
 
 qint64 QAVPlayer::duration() const

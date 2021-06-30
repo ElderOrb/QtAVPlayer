@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-linux-qmake-default:
+    strategy:
+      matrix:
+        compiler: ['gcc-9', 'clang-9']
+        include:
+          - compiler: gcc-9
+            packages: gcc-9 g++-9
+            env: { 'CC': 'gcc-9', 'CXX': 'g++-9' }
+          - compiler: clang-9
+            packages: 'clang-9'
+            env: { 'CC': 'clang-9', 'CXX': 'clang++-9' }
+
+    runs-on: ubuntu-latest
+
+    env: ${{ matrix.env }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install compiler and FFmpeg dependencies
+        run: |
+          sudo apt-get update &&
+          sudo apt-get install -y ${{ matrix.packages }} \
+                                  libavcodec-dev \
+                                  libavformat-dev \
+                                  libavdevice-dev \
+                                  libavfilter-dev \
+                                  libavformat-dev \
+                                  libavutil-dev \
+                                  libswresample-dev \
+                                  libswscale-dev \
+                                  libva-x11-2 \
+                                  libva-drm2
+
+      - name: Install Qt 5.15
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.15.2
+
+      - name: Building
+        run: |
+          qmake
+          make -j12
+          make install
+
+      - name: Tests
+        run: |
+          cd tests/
+          qmake
+          make -j12
+          cd auto/integration/qavdemuxer
+          ./tst_qavdemuxer --platform minimal
+          cd ../
+          cd qavplayer
+          ./tst_qavplayer --platform minimal

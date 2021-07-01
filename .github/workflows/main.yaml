@@ -10,14 +10,11 @@ jobs:
   build-linux-qmake-default:
     strategy:
       matrix:
-        compiler: ['gcc-9', 'clang-9']
+        compiler: ['gcc-9']
         include:
           - compiler: gcc-9
             packages: gcc-9 g++-9
             env: { 'CC': 'gcc-9', 'CXX': 'g++-9' }
-          - compiler: clang-9
-            packages: 'clang-9'
-            env: { 'CC': 'clang-9', 'CXX': 'clang++-9' }
 
     runs-on: ubuntu-latest
 
@@ -49,16 +46,98 @@ jobs:
       - name: Building
         run: |
           qmake
-          make -j12
+          make -j12 CC=$CC CXX=$CXX
           make install
 
       - name: Tests
         run: |
           cd tests/
           qmake
-          make -j12
+          make -j12 CC=$CC CXX=$CXX
           cd auto/integration/qavdemuxer
           ./tst_qavdemuxer --platform minimal
           cd ../
           cd qavplayer
           ./tst_qavplayer --platform minimal
+
+  build-macos-qmake-default:
+    strategy:
+      matrix:
+        compiler: ['clang-9']
+        include:
+          - compiler: clang-9
+            packages: llvm@9
+            env: { 'CC': 'clang', 'CXX': 'clang++' }
+
+    runs-on: macos-latest
+
+    env: ${{ matrix.env }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          brew install ${{ matrix.packages }} ffmpeg qt@5
+
+      - name: Set environment path
+        run: |
+          echo "/usr/local/opt/qt5/bin" >> $GITHUB_PATH
+          echo "/usr/local/opt/llvm@9/bin" >> $GITHUB_PATH
+
+      - name: Building
+        run: |
+          qmake
+          make -j12 CC=$CC CXX=$CXX
+          make install
+
+      - name: Tests
+        run: |
+          cd tests/
+          qmake
+          make -j12 CC=$CC CXX=$CXX
+          cd auto/integration/qavdemuxer
+          ./tst_qavdemuxer --platform minimal
+          cd ../
+          cd qavplayer
+          ./tst_qavplayer --platform minimal
+
+  build-windows-vs-qmake-default:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Qt 5.15
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 5.15.2
+
+      - name: Install FFmpeg
+        shell: cmd
+        run: |
+          cd ..
+          xidel https://github.com/BtbN/FFmpeg-Builds/releases -e "//a[contains(@href, '-gpl-shared-4.4.zip')]/@href[1]" --silent > ffmpeg.url
+          xidel https://github.com/BtbN/FFmpeg-Builds/releases -e "(//a[contains(@href, '-gpl-shared-4.4.zip')])[1]/substring(., 0, string-length(.) - 3)" --silent > ffmpeg.name
+          set /P FFMPEG_URL=< ffmpeg.url
+          set /P FFMPEG_NAME=< ffmpeg.name
+          wget https://github.com%FFMPEG_URL%
+          unzip %FFMPEG_NAME%.zip
+          ren %FFMPEG_NAME% ffmpeg
+          dir ffmpeg
+
+      - name: Building
+        run: |
+          qmake
+          nmake
+
+      - name: Tests
+        run: |
+          cd tests/
+          qmake
+          nmake
+          cd auto/integration/qavdemuxer
+          Release/tst_qavdemuxer.exe --platform minimal
+          cd ../
+          cd qavplayer
+          Release/tst_qavplayer --platform minimal

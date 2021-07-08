@@ -33,7 +33,11 @@ if(equals(MAKEFILE_GENERATOR, MSVC.NET)|equals(MAKEFILE_GENERATOR, MSBUILD)) {
 }
 
 QTAVLIBNAME = QtAVPlayer
-qtavplayerlibs.pattern = $$QTAVPLAYER_BUILD_DIR/$$QTLIBPREFIX$${QTAVLIBNAME}.$$QMAKE_EXTENSION_SHLIB*
+mac: {
+  qtavplayerlibs.pattern = $$QTAVPLAYER_BUILD_DIR/$$QTLIBPREFIX$${QTAVLIBNAME}*.$$QMAKE_EXTENSION_SHLIB*
+} else {
+  qtavplayerlibs.pattern = $$QTAVPLAYER_BUILD_DIR/$$QTLIBPREFIX$${QTAVLIBNAME}.$$QMAKE_EXTENSION_SHLIB*
+}
 message('qtavplayerlibs.pattern: ' $$qtavplayerlibs.pattern)
 
 qtavplayerlibs.files = $$files($$qtavplayerlibs.pattern)

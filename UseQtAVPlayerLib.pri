@@ -44,6 +44,7 @@ mac: {
   message('qtavplayerlibs.path: ' $$qtavplayerlibs.path)
 
   qtavplayerlibs.commands += $$escape_expand(\\n\\t)rm -rf $$shell_path($$qtavplayerlibs.path)
+  qtavplayerlibs.commands += $$escape_expand(\\n\\t)$$QMAKE_MKDIR_CMD $$shell_path($$qtavplayerlibs.path)
 
   for(item, qtavplayerlibs.files) {
     message('adding file ' $$item ' to copy list')

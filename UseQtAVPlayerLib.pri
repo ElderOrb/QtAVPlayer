@@ -34,7 +34,7 @@ if(equals(MAKEFILE_GENERATOR, MSVC.NET)|equals(MAKEFILE_GENERATOR, MSBUILD)) {
 
 QTAVLIBNAME = QtAVPlayer
 mac: {
-  qtavplayerlibs.pattern = $$QTAVPLAYER_BUILD_DIR/libQtAVPlayer.1.dylib
+  qtavplayerlibs.pattern = $$QTAVPLAYER_BUILD_DIR/$$QTLIBPREFIX$${QTAVLIBNAME}*.$$QMAKE_EXTENSION_SHLIB*
   message('qtavplayerlibs.pattern: ' $$qtavplayerlibs.pattern)
 
   qtavplayerlibs.files = $$files($$qtavplayerlibs.pattern)
@@ -48,7 +48,7 @@ mac: {
 
   for(item, qtavplayerlibs.files) {
     message('adding file ' $$item ' to copy list')
-    qtavplayerlibs.commands += $$escape_expand(\\n\\t)$$QMAKE_COPY_DIR $$shell_path($$item) $$shell_path($$qtavplayerlibs.path)
+    qtavplayerlibs.commands += $$escape_expand(\\n\\t)$$QMAKE_COPY_DIR -L $$shell_path($$item) $$shell_path($$qtavplayerlibs.path)
   }
 
   qtavplayerlibs.commands += $$escape_expand(\\n\\t)install_name_tool -change libQtAVPlayer.1.dylib @executable_path/../Libraries/libQtAVPlayer.1.dylib $$OUT_PWD$${BUILD_DIR}/$${TARGET}.app/Contents/MacOS/$${TARGET}

@@ -37,8 +37,8 @@ public:
     {
         NoMedia,
         LoadingMedia,
-        LoadedMedia,
         SeekingMedia,
+        LoadedMedia,
         EndOfMedia,
         InvalidMedia
     };
@@ -56,17 +56,13 @@ public:
     void setSource(const QUrl &url);
     QUrl source() const;
 
-    bool isAudioAvailable() const;
-    bool isVideoAvailable() const;
-
-    void vo(std::function<void(const QAVVideoFrame &frame)>);
-    void ao(std::function<void(const QAVAudioFrame &frame)>);
+    bool hasAudio() const;
+    bool hasVideo() const;
 
     State state() const;
     MediaStatus mediaStatus() const;
     qint64 duration() const;
     qint64 position() const;
-    bool isMuted() const;
     qreal speed() const;
 
     bool isSeekable() const;
@@ -78,7 +74,6 @@ public Q_SLOTS:
     void pause();
     void stop();
     void seek(qint64 position);
-    void setMuted(bool muted);
     void setSpeed(qreal rate);
 
 Q_SIGNALS:
@@ -88,8 +83,11 @@ Q_SIGNALS:
     void errorOccurred(QAVPlayer::Error, const QString &str);
     void durationChanged(qint64 duration);
     void seekableChanged(bool seekable);
-    void mutedChanged(bool muted);
     void speedChanged(qreal rate);
+    void seeked(qint64 pos);
+
+    void videoFrame(const QAVVideoFrame &frame);
+    void audioFrame(const QAVAudioFrame &frame);
 
 protected:
     QScopedPointer<QAVPlayerPrivate> d_ptr;
@@ -99,10 +97,10 @@ private:
     Q_DECLARE_PRIVATE(QAVPlayer)
 };
 
-QT_END_NAMESPACE
-
 Q_DECLARE_METATYPE(QAVPlayer::State)
 Q_DECLARE_METATYPE(QAVPlayer::MediaStatus)
 Q_DECLARE_METATYPE(QAVPlayer::Error)
+
+QT_END_NAMESPACE
 
 #endif
